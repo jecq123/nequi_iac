@@ -12,16 +12,7 @@ resource "aws_db_instance" "postgres" {
   username              = var.db_username
   password              = var.db_password
   db_name               = var.db_name
-  vpc_security_group_ids = [aws_security_group.db_sg.id]
+  vpc_security_group_ids = ["sg-0e0f8a2fde66ac80d"]
 }
 
-resource "aws_security_group" "db_sg" {
-  vpc_id = aws_vpc.main_vpc.id
 
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Accesible públicamente (NO recomendado en producción)
-  }
-}
