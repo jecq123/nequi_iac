@@ -1,7 +1,7 @@
 output "db_endpoint" {
-  value = aws_db_instance.postgres.address
+  value = module.rds.db_endpoint
 }
 
 output "ecr_repo_url" {
-  value = aws_ecr_repository.app_repo.repository_url
+  value = module.ecr.ecr_repo_url
 }

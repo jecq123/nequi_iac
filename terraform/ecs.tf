@@ -7,7 +7,7 @@ resource "aws_ecs_task_definition" "app_task" {
   container_definitions    = jsonencode([
     {
       name      = "app"
-      image     = aws_ecr_repository.app_repo.repository_url
+      image     = var.ecr_repo_url
       cpu       = 256
       memory    = 512
       essential = true
@@ -26,4 +26,9 @@ resource "aws_ecs_service" "app_service" {
   cluster         = aws_ecs_cluster.app_cluster.id
   task_definition = aws_ecs_task_definition.app_task.arn
   desired_count   = 1
+  network_configuration {
+    subnets         = var.public_subnet_ids
+    security_groups = [var.security_group_id]
+    assign_public_ip = true
+  }
 }
