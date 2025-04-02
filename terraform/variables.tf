@@ -9,3 +9,7 @@ variable "db_password" {
 variable "app_port" {
   default = 8080
 }
+
+variable "db_name" {
+  default = "nequi_franquicias_db"
+}
