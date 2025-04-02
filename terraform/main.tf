@@ -6,7 +6,9 @@ provider "aws" {
 # VPC y Subredes
 # -------------------------------
 resource "aws_vpc" "main_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true  
+  enable_dns_hostnames = true
 }
 
 resource "aws_subnet" "public_subnet_1" {
