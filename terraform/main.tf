@@ -47,7 +47,7 @@ resource "aws_security_group" "allow_all" {
 resource "aws_db_instance" "postgres" {
   identifier              = "nequi-db"
   engine                  = "postgres"
-  engine_version          = "14.3"
+  engine_version          = "17.2"
   instance_class          = "db.t3.micro"
   allocated_storage       = 20
   storage_type            = "gp2"
