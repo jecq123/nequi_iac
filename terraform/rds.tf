@@ -20,3 +20,7 @@ resource "aws_db_instance" "postgres" {
   vpc_security_group_ids = [var.security_group_id]
   db_subnet_group_name   = var.db_subnet_group_name
 }
+
+output "db_endpoint" {
+  value = aws_db_instance.postgres.address
+}
