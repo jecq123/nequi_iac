@@ -26,6 +26,11 @@ resource "aws_route" "default_route" {
   gateway_id             = aws_internet_gateway.gw.id
 }
 
+resource "aws_route_table_association" "public_association" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
 resource "aws_security_group" "allow_all" {
   vpc_id = aws_vpc.main_vpc.id
 
@@ -56,6 +61,12 @@ resource "aws_db_instance" "postgres" {
   username               = var.db_username
   password               = var.db_password
   vpc_security_group_ids  = [aws_security_group.allow_all.id]
+  db_subnet_group_name    = aws_db_subnet_group.db_subnet.name
+}
+
+resource "aws_db_subnet_group" "db_subnet" {
+  name       = "db-subnet-group"
+  subnet_ids = [aws_subnet.public_subnet.id]
 }
 
 resource "aws_ecr_repository" "app_repo" {
@@ -66,13 +77,36 @@ resource "aws_ecs_cluster" "app_cluster" {
   name = "nequi-franquicias-cluster"
 }
 
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "ecsTaskExecutionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "ecs_execution_role_policy" {
+  name       = "ecs_execution_role_policy"
+  roles      = [aws_iam_role.ecs_execution_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
 resource "aws_ecs_task_definition" "app_task" {
   family                   = "nequi-franquicias-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = "arn:aws:iam::123456789012:role/ecsTaskExecutionRole"
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 
   container_definitions    = jsonencode([
     {
